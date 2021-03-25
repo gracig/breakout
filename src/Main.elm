@@ -26,10 +26,13 @@ type alias Player =
   , width: Float
   , height: Float
   , speedRatio: Float
+  , widthRatio: Float
+  , heightRatio: Float
   }
 type alias Ball = 
   { speed: V.Vec2  
   , coord: Coord
+  , speedRatio: Float
   , radius: Float
   , glued: Bool
   , dropped: Bool
@@ -40,8 +43,11 @@ type alias Brick =
   { coord: Coord
   , width: Float
   , height: Float
-  ,  life: Float
+  , life: Float
   , position: ( Int, Int)
+  , widthRatio : Float
+  , heightRatio : Float
+
   }
 reset : Memory
 reset = 
@@ -59,57 +65,59 @@ resetPlayer =
   , level = 1
   , width = 1
   , height = 1
-  , speedRatio = 15
+  , speedRatio = 0.01
+  , widthRatio = 0.1
+  , heightRatio = 0.025
   }
 
 resetBalls : List Ball
 resetBalls = 
-  [ { coord = { x = 0, y = 0}, direction = V.vec2 1 1 , speed = V.vec2 10 10, radius = 10, glued = True, dropped = False, brickHits = [] }]
+  [ { coord = { x = 0, y = 0}, direction = V.vec2 0.25 1 ,speedRatio = 1, speed = V.vec2 10 10, radius = 10, glued = True, dropped = False, brickHits = [] }]
 
 resetBricks : List Brick
 resetBricks = 
-  [ { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-3,5)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-3,4)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-3,3)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-3,2)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-3,1)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-3,0)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-2,5)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-2,4)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-2,3)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-2,2)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-2,1)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-2,0)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-1,5)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-1,4)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-1,3)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-1,2)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-1,1)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-1,0)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-0,5)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-0,4)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-0,3)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-0,2)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-0,1)} 
-  , { coord = { x = 0, y = 0}, life = 10, width=10, height=10, position=(-0,0)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(1,5)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(1,4)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(1,3)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(1,2)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(1,1)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(1,0)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(2,5)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(2,4)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(2,3)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(2,2)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(2,1)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(2,0)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(3,5)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(3,4)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(3,3)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(3,2)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(3,1)} 
-  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(3,0)} 
+  [ { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-3,5), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-3,4), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-3,3), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-3,2), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-3,1), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-3,0), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-2,5), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-2,4), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-2,3), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-2,2), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-2,1), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-2,0), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-1,5), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-1,4), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-1,3), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-1,2), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-1,1), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-1,0), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-0,5), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-0,4), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-0,3), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-0,2), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(-0,1), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 10, width=10, height=10, position=(-0,0), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(1,5), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(1,4), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(1,3), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(1,2), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(1,1), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(1,0), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(2,5), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(2,4), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(2,3), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(2,2), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(2,1), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(2,0), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(3,5), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(3,4), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(3,3), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(3,2), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(3,1), widthRatio=0.075, heightRatio=0.05} 
+  , { coord = { x = 0, y = 0}, life = 1, width=10, height=10, position=(3,0), widthRatio=0.075, heightRatio=0.05} 
   ]
 
 
@@ -195,8 +203,8 @@ resetBricksIfEmpty memory =
 
 translateBrick: P.Computer -> Brick -> Brick
 translateBrick computer brick = 
-    let width = computer.screen.width/15
-        height = computer.screen.height/25
+    let width = computer.screen.width * brick.widthRatio
+        height = computer.screen.height * brick.heightRatio
         pw = computer.screen.width * 0.02
         ph = 0
         coordX = toFloat(Tuple.first (brick.position)) * (width + pw)
@@ -297,8 +305,13 @@ resizeBalls: P.Computer -> Memory -> List Ball -> List Ball
 resizeBalls computer memory balls = List.map (resizeBall computer memory ) balls
 
 resizeBall: P.Computer -> Memory -> Ball -> Ball
-resizeBall _ memory ball = 
-  { ball | radius = memory.player.height /2 }
+resizeBall computer memory ball = 
+  let
+    speedx = ball.speedRatio * (computer.screen.width * 0.01)
+    speedy = ball.speedRatio * (computer.screen.height * 0.01)
+  in
+    { ball | radius = memory.player.height /2, speed= V.vec2 speedx speedy }
+  
 
 moveBalls: P.Computer -> Memory -> List Ball -> List Ball
 moveBalls computer memory balls = List.map (moveBall computer memory) balls
@@ -330,8 +343,6 @@ changeBallDirAfterBrickHit brick ball=
   let 
     pright = brick.coord.x + brick.width/2 
     pleft = brick.coord.x - brick.width/2 
-    ptop = brick.coord.y + brick.height/2
-    pbottom = brick.coord.y - brick.height/2
   in
     if ball.coord.x <= pleft then
       changeBallDirX ball
@@ -366,13 +377,15 @@ dropBall ball =
 checkBallHits : P.Computer -> Memory -> Ball -> Ball
 checkBallHits computer memory ball =
   let 
-    hitWallOnTop = near ball.coord.y (ball.radius + (V.getY ball.speed)) computer.screen.top
-    hitWallOnBottom = near ball.coord.y (ball.radius + (V.getX ball.speed)) computer.screen.bottom
-    hitWallOnLeft = near ball.coord.x (ball.radius + (V.getX ball.speed)) computer.screen.left
-    hitWallOnRight = near ball.coord.x (ball.radius + (V.getY ball.speed)) computer.screen.right
+    hitWallOnTop = near ball.coord.y (ball.radius/2 + (V.getY ball.speed)) computer.screen.top
+    hitWallOnBottom = near ball.coord.y (ball.radius/2 + (V.getY ball.speed)) computer.screen.bottom
+    hitWallOnLeft = near ball.coord.x (ball.radius/2 + (V.getX ball.speed)) computer.screen.left
+    hitWallOnRight = near ball.coord.x (ball.radius/2 + (V.getX ball.speed)) computer.screen.right
     hitPlayer = 
-      near ball.coord.y ( memory.player.height + (ball.radius/2) ) memory.player.coord.y && 
-      near ball.coord.x (memory.player.width/2 + (ball.radius/2)) memory.player.coord.x
+--      near ball.coord.y ( memory.player.height + (ball.radius/2) ) memory.player.coord.y && 
+--      near ball.coord.x (memory.player.width/2 + (ball.radius/2)) memory.player.coord.x
+      near ball.coord.y (memory.player.height/2  + (V.getY ball.speed)) memory.player.coord.y && 
+      near ball.coord.x (memory.player.width/2 + (V.getX ball.speed)) memory.player.coord.x
 
     hitBrick: Brick -> Ball -> Bool
     hitBrick brick b = 
@@ -414,13 +427,14 @@ updatePlayer computer memory =
 
 resizePlayer: P.Computer -> Player -> Player
 resizePlayer computer player = 
-    let wr = 10
-        hr = 50
+    let 
+      width = computer.screen.width * player.widthRatio
+      height = computer.screen.height * player.heightRatio
     in
-        { player | width = computer.screen.width/wr, height = computer.screen.height/hr }
+        { player | width = width, height = height }
 
 playerSpeed: Computer -> Player -> Float
-playerSpeed computer player = (1 - 100/computer.screen.width) * player.speedRatio
+playerSpeed computer player = computer.screen.width * player.speedRatio
 
 
 movePlayer: P.Computer -> Player -> Player
